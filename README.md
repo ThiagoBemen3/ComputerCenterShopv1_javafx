@@ -4,11 +4,11 @@
 
 ## Fitxa de l'equip
 
-- Integrants: **[nom i cognoms]** i **[nom i cognoms]**
-- Repositori compartit: **[URL del repositori]**
-- Branca de treball habitual: **[nom de la branca]**
-- Data d'inici: **[AAAA-MM-DD]**
-- Última actualització: **[AAAA-MM-DD]**
+- Integrants: **Alex Alcaraz Castillo** i **Thiago Prieto Calvo**
+- Repositori compartit: **https://github.com/ThiagoBemen3/ComputerCenterShopv1_javafx**
+- Branca de treball habitual: **main**
+- Data d'inici: **2026-11-12**
+- Última actualització: **2026-11-24**
 
 ## Propòsit del projecte
 
@@ -18,11 +18,11 @@ El repositori ha de mostrar el procés de treball real de l'equip. No es tracta 
 
 ## Punt de partida
 
-- Repositori *starter* utilitzat: **[URL o nom del repositori]**
-- Gestor de base de dades relacional utilitzat: **[indiqueu-lo]**
-- Connector utilitzat: **[indiqueu-lo]**
-- Entorn de desenvolupament: **[indiqueu-lo]**
-- Comandament o acció que fem servir per comprovar l'execució: **[completeu-lo]**
+- Repositori *starter* utilitzat: **ComputerCenterShop_v1_javafx_starter (facilitat pel professorat)**
+- Gestor de base de dades relacional utilitzat: **H2 Database, en mode fitxer local (sense servidor)**
+- Connector utilitzat: **H2 JDBC, `com.h2database:h2:2.2.224`, declarat al `pom.xml`**
+- Entorn de desenvolupament: **Eclipse 2026-09 amb Maven integrat (m2e) i Java 25**
+- Comandament o acció que fem servir per comprovar l'execució: **a Eclipse, clic dret a `src/main/Ra2JdbcDemo.java` → Run As → Java Application**
 
 > No incorporeu ORM, Hibernate, ObjectDB, MongoDB, serveis externs ni persistència principal en fitxers. Aquests elements no formen part de RA2.
 
@@ -42,7 +42,7 @@ Marqueu una tasca quan la prova i el rastre al repositori estiguin recollits. El
 ### M1 · Base JDBC operativa
 
 - [X] [RA2-ISSUE-01 · Preparar el projecte JDBC](issues/RA2-ISSUE-01-preparar-projecte-jdbc.md)
-- [ ] [RA2-ISSUE-02 · Connector, URL i connexió](issues/RA2-ISSUE-02-revisar-connector-url-connexio.md)
+- [X] [RA2-ISSUE-02 · Connector, URL i connexió](issues/RA2-ISSUE-02-revisar-connector-url-connexio.md)
 - [ ] [RA2-ISSUE-03 · Estructura relacional](issues/RA2-ISSUE-03-crear-estructura-relacional.md)
 
 ### M2 · Operacions relacionals principals
@@ -81,7 +81,26 @@ Dupliqueu aquest bloc per a cada *issue* que completeu. Escriviu amb les vostres
 - Explicació individual: **[què pot explicar cada integrant sobre aquesta tasca]**
 - Ús d'IA, si n'hi ha hagut: **[consulta feta, ajuda rebuda i comprovació pròpia]**
 
+### RA2-ISSUE-02 · Connector, URL i connexió
+
+- Estat: **comprovat**
+- Persona que l'ha iniciat: **Thiago**
+- Problema inicial: **el mètode `connect()` no obria cap connexió. Llançava l'error «RA2-ISSUE-02 pendent» i la demo s'aturava abans d'arribar a la base de dades.**
+- Decisió aplicada: **obrir la connexió amb `DriverManager.getConnection(url, user, password)` i guardar-la al camp `conn`, perquè la puguin fer servir la resta de mètodes. Mantenim la lectura de les propietats de sistema (`computercenter.db.url`, `computercenter.db.user` i `computercenter.db.password`) per poder canviar la configuració sense modificar el codi. Si no s'indiquen, es fa servir H2 local.**
+- Canvis fets: **`src/dao/ProductDaoImplJDBC.java`, mètode `connect()`: hem tret el TODO i el `throw pending(...)` i hem afegit la crida a `DriverManager`. No ha calgut tocar el `pom.xml` perquè ja incloïa H2.**
+- Prova realitzada: **en executar `Ra2JdbcDemo` ja no surt «RA2-ISSUE-02 pendent». Ara s'atura a «RA2-ISSUE-03 pendent», que és el pas següent, i es crea el fitxer `data/computercenter_v1_starter.mv.db`.**
+- Evidència: **[enllaç a la captura]**
+- *Commit* o *pull request*: **[6ab72bd](https://github.com/ThiagoBemen3/ComputerCenterShopv1_javafx/commit/6ab72bd61835367dd467fff59b32ce0fe93a941d)**
+- Explicació individual: **[Alex: ...] [Thiago: ...]**
+- Ús d'IA, si n'hi ha hagut:
+
 ## Proves que hem de poder repetir
+
+| Arrencada del projecte | Executar `Ra2JdbcDemo` amb la configuració per defecte | La connexió s'obre i es crea la base de dades. El programa s'atura a «RA2-ISSUE-03 pendent» | **[enllaç]** |
+| Operació de modificació | Pendent (RA2-ISSUE-04, 05 i 06) | Pendent | Pendent |
+| Consulta de dades | Pendent (RA2-ISSUE-07) | Pendent | Pendent |
+| Cas d'error controlat | Base de dades ja creada. Executar amb `-Dcomputercenter.db.password=dolenta` | «Wrong user name or password [28000-224]». El programa mostra l'error i acaba sense excepció | **[enllaç]** |
+| Operació agrupada o transacció | Pendent (RA2-ISSUE-09) | Pendent | Pendent |
 
 | Cas que comprovem | Dades o condicions inicials | Resultat observat | Evidència |
 | --- | --- | --- | --- |
@@ -91,7 +110,12 @@ Dupliqueu aquest bloc per a cada *issue* que completeu. Escriviu amb les vostres
 | Cas d'error controlat | **[completeu]** | **[completeu]** | **[enllaç]** |
 | Operació agrupada o transacció | **[completeu]** | **[completeu]** | **[enllaç]** |
 
+
 ## Decisions i dubtes de l'equip
+
+| 2026-11-19 | RA2-ISSUE-02 | Cal carregar el driver d'H2 amb `Class.forName`? | 
+| No cal: el driver es registra sol i `DriverManager` el troba per la URL `jdbc:h2:` |
+| [6ab72bd](https://github.com/ThiagoBemen3/ComputerCenterShopv1_javafx/commit/6ab72bd61835367dd467fff59b32ce0fe93a941d) |
 
 | Data | *Issue* | Decisió o dubte | Com s'ha resolt | Referència |
 | --- | --- | --- | --- | --- |
