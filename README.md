@@ -43,7 +43,7 @@ Marqueu una tasca quan la prova i el rastre al repositori estiguin recollits. El
 
 - [X] [RA2-ISSUE-01 · Preparar el projecte JDBC](issues/RA2-ISSUE-01-preparar-projecte-jdbc.md)
 - [X] [RA2-ISSUE-02 · Connector, URL i connexió](issues/RA2-ISSUE-02-revisar-connector-url-connexio.md)
-- [ ] [RA2-ISSUE-03 · Estructura relacional](issues/RA2-ISSUE-03-crear-estructura-relacional.md)
+- [X] [RA2-ISSUE-03 · Estructura relacional](issues/RA2-ISSUE-03-crear-estructura-relacional.md)
 
 ### M2 · Operacions relacionals principals
 
@@ -91,7 +91,7 @@ Dupliqueu aquest bloc per a cada *issue* que completeu. Escriviu amb les vostres
 - Prova realitzada: **en executar `Ra2JdbcDemo` ja no surt «RA2-ISSUE-02 pendent». Ara s'atura a «RA2-ISSUE-03 pendent», que és el pas següent, i es crea el fitxer `data/computercenter_v1_starter.mv.db`.**
 - Evidència: **[enllaç a la captura]**
 - *Commit* o *pull request*: **[6ab72bd](https://github.com/ThiagoBemen3/ComputerCenterShopv1_javafx/commit/6ab72bd61835367dd467fff59b32ce0fe93a941d)**
-- Explicació individual: **[Alex: ...] [Thiago: ...]**
+- Explicació individual: **[Thiago: ...]**
 - Ús d'IA, si n'hi ha hagut:
 
 ## Proves que hem de poder repetir
@@ -101,6 +101,52 @@ Dupliqueu aquest bloc per a cada *issue* que completeu. Escriviu amb les vostres
 | Consulta de dades | Pendent (RA2-ISSUE-07) | Pendent | Pendent |
 | Cas d'error controlat | Base de dades ja creada. Executar amb `-Dcomputercenter.db.password=dolenta` | «Wrong user name or password [28000-224]». El programa mostra l'error i acaba sense excepció | **[enllaç]** |
 | Operació agrupada o transacció | Pendent (RA2-ISSUE-09) | Pendent | Pendent |
+
+## Decisions i dubtes de l'equip
+
+| 2026-11-19 | RA2-ISSUE-02 | Cal carregar el driver d'H2 amb `Class.forName`? | 
+| No cal: el driver es registra sol i `DriverManager` el troba per la URL `jdbc:h2:` |
+| [6ab72bd](https://github.com/ThiagoBemen3/ComputerCenterShopv1_javafx/commit/6ab72bd61835367dd467fff59b32ce0fe93a941d) |
+
+## Ús responsable d'IA
+
+No hem utilitzat en aquesta issue.
+
+
+### RA2-ISSUE-03 · Estructura relacional
+
+- Estat: **comprovat**
+- Persona que l'ha iniciat: **Alex**
+- Problema inicial: **el mètode `initSchema()` no creava cap taula. Llançava l'error «RA2-ISSUE-03 pendent» i la base de dades quedava buida.**
+- Decisió aplicada: **crear l'estructura des del DAO amb `Statement` i `try-with-resources`. Fem servir `IF NOT EXISTS` perquè es pugui executar més d'una vegada sense error, i només inserim les dades inicials si la taula `products` és buida, per no duplicar productes.**
+- Canvis fets: **`src/dao/ProductDaoImplJDBC.java`, mètode `initSchema()`: taules `products` i `inventory_history` (amb clau forana a `products`), àlies `STOCK_ALERT_LIMIT` i tres productes inicials.**
+- Prova realitzada: **hem executat `Ra2JdbcDemo` tres vegades. Ja no surt «RA2-ISSUE-03 pendent»: ara s'atura a «RA2-ISSUE-07 pendent». Les dues taules existeixen i continua havent-hi tres productes.**
+- Evidència: **[enllaç a la captura]**
+- *Commit* o *pull request*: **[13fd0e2](https://github.com/ThiagoBemen3/ComputerCenterShopv1_javafx/commit/13fd0e22bacaf15bab6b653fe1c9ed5566fb0e9b)**
+- Explicació individual: **[Alex: ...] [Thiago: ...]**
+- Ús d'IA, si n'hi ha hagut: **[completeu]**
+
+## Proves que hem de poder repetir
+
+| Cas que comprovem | Dades o condicions inicials | Resultat observat | Evidència |
+| --- | --- | --- | --- |
+| Arrencada del projecte | Executar `Ra2JdbcDemo` amb la configuració per defecte | La connexió s'obre i es creen les taules. El programa s'atura a «RA2-ISSUE-07 pendent» | **[enllaç]** |
+| Operació de modificació | Pendent (RA2-ISSUE-04, 05 i 06) | Pendent | Pendent |
+| Consulta de dades | Pendent (RA2-ISSUE-07) | Pendent | Pendent |
+| Cas d'error controlat | Base de dades ja creada. Executar amb `-Dcomputercenter.db.password=dolenta` | «Wrong user name or password [28000-224]». El programa mostra l'error i acaba sense excepció | **[enllaç]** |
+| Operació agrupada o transacció | Pendent (RA2-ISSUE-09) | Pendent | Pendent |
+
+## Decisions i dubtes de l'equip
+
+| Data | *Issue* | Decisió o dubte | Com s'ha resolt | Referència |
+| --- | --- | --- | --- | --- |
+| 2026-11-24 | RA2-ISSUE-03 | Com evitem duplicar productes si `initSchema()` s'executa més d'una vegada? | Comptem les files amb `SELECT COUNT(*)` i només inserim si la taula és buida | [13fd0e2](https://github.com/ThiagoBemen3/ComputerCenterShopv1_javafx/commit/13fd0e22bacaf15bab6b653fe1c9ed5566fb0e9b) |
+
+## Ús responsable d'IA
+
+No hem utilitzat a aquesta issue.
+
+## Proves que hem de poder repetir
 
 | Cas que comprovem | Dades o condicions inicials | Resultat observat | Evidència |
 | --- | --- | --- | --- |
@@ -112,10 +158,6 @@ Dupliqueu aquest bloc per a cada *issue* que completeu. Escriviu amb les vostres
 
 
 ## Decisions i dubtes de l'equip
-
-| 2026-11-19 | RA2-ISSUE-02 | Cal carregar el driver d'H2 amb `Class.forName`? | 
-| No cal: el driver es registra sol i `DriverManager` el troba per la URL `jdbc:h2:` |
-| [6ab72bd](https://github.com/ThiagoBemen3/ComputerCenterShopv1_javafx/commit/6ab72bd61835367dd467fff59b32ce0fe93a941d) |
 
 | Data | *Issue* | Decisió o dubte | Com s'ha resolt | Referència |
 | --- | --- | --- | --- | --- |
