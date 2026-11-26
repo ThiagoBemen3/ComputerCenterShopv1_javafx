@@ -102,8 +102,17 @@ public class ProductDaoImplJDBC implements ProductDao {
 
 	@Override
 	public int deleteProduct(String name) throws SQLException {
-		// TODO RA2-ISSUE-06: eliminar per nom i comprovar files afectades.
-		throw pending("RA2-ISSUE-06 pendent: implementa eliminacio controlada.");
+		String sql = "DELETE FROM products WHERE name = ?";
+		try (PreparedStatement statement = requireConnection().prepareStatement(sql)) {
+			statement.setString(1, name);
+			return statement.executeUpdate();
+		} catch (SQLException e) {
+			if ("23503".equals(e.getSQLState())) {
+				throw new SQLException("No es pot eliminar el producte '" + name
+						+ "' perque te historial a inventory_history.", e.getSQLState(), e);
+			}
+			throw e;
+		}
 	}
 
 	@Override
