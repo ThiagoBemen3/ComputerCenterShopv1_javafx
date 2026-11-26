@@ -48,7 +48,7 @@ Marqueu una tasca quan la prova i el rastre al repositori estiguin recollits. El
 ### M2 · Operacions relacionals principals
 
 - [X] [RA2-ISSUE-04 · Inserció de dades](issues/RA2-ISSUE-04-inserir-producte-preparedstatement.md)
-- [ ] [RA2-ISSUE-05 · Actualització d'estoc](issues/RA2-ISSUE-05-actualitzar-estoc.md)
+- [X] [RA2-ISSUE-05 · Actualització d'estoc](issues/RA2-ISSUE-05-actualitzar-estoc.md)
 - [ ] [RA2-ISSUE-06 · Eliminació controlada](issues/RA2-ISSUE-06-eliminar-producte-controlat.md)
 - [ ] [RA2-ISSUE-07 · Consultes i resultats](issues/RA2-ISSUE-07-consultar-inventari-resultset.md)
 
@@ -121,8 +121,8 @@ No hem utilitzat en aquesta issue.
 - Decisió aplicada: **crear l'estructura des del DAO amb `Statement` i `try-with-resources`. Fem servir `IF NOT EXISTS` perquè es pugui executar més d'una vegada sense error, i només inserim les dades inicials si la taula `products` és buida, per no duplicar productes.**
 - Canvis fets: **`src/dao/ProductDaoImplJDBC.java`, mètode `initSchema()`: taules `products` i `inventory_history` (amb clau forana a `products`), àlies `STOCK_ALERT_LIMIT` i tres productes inicials.**
 - Prova realitzada: **hem executat `Ra2JdbcDemo` tres vegades. Ja no surt «RA2-ISSUE-03 pendent»: ara s'atura a «RA2-ISSUE-07 pendent». Les dues taules existeixen i continua havent-hi tres productes.**
-- Evidència: **[enllaç a la captura]**
-- *Commit* o *pull request*: **[13fd0e2](https://github.com/ThiagoBemen3/ComputerCenterShopv1_javafx/commit/13fd0e22bacaf15bab6b653fe1c9ed5566fb0e9b)**
+- Evidència: **[captura](evidencies/captura%20evidencia%20Issue03.png)**
+- *Commit* o *pull request*: **[92304de](https://github.com/ThiagoBemen3/ComputerCenterShopv1_javafx/commit/92304de57e831ead2ae4dcb1a52a7bf6cd94efc1) i [47daf07](https://github.com/ThiagoBemen3/ComputerCenterShopv1_javafx/commit/47daf078aa78224fbcd749c3fbde0a5dc0449d41)**
 - Explicació individual: **[Alex: ...] [Thiago: ...]**
 - Ús d'IA, si n'hi ha hagut: **[completeu]**
 
@@ -140,7 +140,7 @@ No hem utilitzat en aquesta issue.
 
 | Data | *Issue* | Decisió o dubte | Com s'ha resolt | Referència |
 | --- | --- | --- | --- | --- |
-| 2026-11-24 | RA2-ISSUE-03 | Com evitem duplicar productes si `initSchema()` s'executa més d'una vegada? | Comptem les files amb `SELECT COUNT(*)` i només inserim si la taula és buida | [13fd0e2](https://github.com/ThiagoBemen3/ComputerCenterShopv1_javafx/commit/13fd0e22bacaf15bab6b653fe1c9ed5566fb0e9b) |
+| 2026-11-24 | RA2-ISSUE-03 | Com evitem duplicar productes si `initSchema()` s'executa més d'una vegada? | Comptem les files amb `SELECT COUNT(*)` i només inserim si la taula és buida | [92304de](https://github.com/ThiagoBemen3/ComputerCenterShopv1_javafx/commit/92304de57e831ead2ae4dcb1a52a7bf6cd94efc1) |
 
 ## Ús responsable d'IA
 
@@ -178,6 +178,39 @@ No hem utilitzat a aquesta issue.
 ## Ús responsable d'IA
 
 No hem fet us en aquest issue
+
+### RA2-ISSUE-05 · Actualització d'estoc
+
+- Estat: **comprovat**
+- Persona que l'ha iniciat: **Alex**
+- Problema inicial: **el mètode `updateStock()` no modificava res. Llançava l'error «RA2-ISSUE-05 pendent» i no es podia canviar l'estoc de cap producte.**
+- Decisió aplicada: **fer l'actualització amb `PreparedStatement` i la sentència `UPDATE products SET stock = ?, available = ? WHERE name = ?`. La disponibilitat es calcula amb `newStock > 0`, perquè un producte sense estoc quedi com a no disponible. Fem servir `try-with-resources` i retornem el resultat d'`executeUpdate()`, que són les files afectades.**
+- Canvis fets: **`src/dao/ProductDaoImplJDBC.java`, mètode `updateStock()`: hem tret el TODO i el `throw pending(...)` i hem afegit l'actualització parametritzada.**
+- Prova realitzada: **abans del canvi, a la consola d'H2, «RAM 32GB» tenia estoc 3 i estava disponible. Des de l'aplicació li hem posat estoc 0 amb el botó «Estoc». Després, amb l'aplicació tancada, la mateixa consulta (`SELECT name, stock, available FROM products`) mostra estoc 0 i `available` a `FALSE`, és a dir, no disponible.**
+- Evidència: **[abans](evidencies/Captura_evidencia_issue05_1.png) · [cambiant l'estoc](evidencies/Captura_evidencia_issue05_2.png) · [després](evidencies/Captura_evidencia_issue05_3.png)**
+- *Commit* o *pull request*: **[52eecf5](https://github.com/ThiagoBemen3/ComputerCenterShopv1_javafx/commit/52eecf58e3d5b53aa555a080b000fe6f7cf6e7aa)**
+- Explicació individual: **[Alex: ...] [Thiago: ...]**
+- Ús d'IA, si n'hi ha hagut: **[completeu]**
+
+## Proves que hem de poder repetir
+
+| Cas que comprovem | Dades o condicions inicials | Resultat observat | Evidència |
+| --- | --- | --- | --- |
+| Arrencada del projecte | Executar `Ra2JdbcDemo` amb la configuració per defecte | La connexió s'obre i es creen les taules. El programa s'atura a «RA2-ISSUE-07 pendent» | **[enllaç]** |
+| Operació de modificació | Inserció (RA2-ISSUE-04): afegir «GTA VI» (67.00, estoc 6). Actualització (RA2-ISSUE-05): posar «RAM 32GB» a estoc 0. Eliminació pendent (RA2-ISSUE-06) | El producte inserit apareix a la consulta. Amb estoc 0 «RAM 32GB» queda no disponible | **[captura](evidencies/issue04.png)** · **[abans](evidencies/Captura_evidencia_issue05_1.png)** · **[després](evidencies/Captura_evidencia_issue05_3.png)** |
+| Consulta de dades | Pendent (RA2-ISSUE-07) | Pendent | Pendent |
+| Cas d'error controlat | Base de dades ja creada. Executar amb `-Dcomputercenter.db.password=dolenta` | «Wrong user name or password [28000-224]». El programa mostra l'error i acaba sense excepció | **[enllaç]** |
+| Operació agrupada o transacció | Pendent (RA2-ISSUE-09) | Pendent | Pendent |
+
+## Decisions i dubtes de l'equip
+
+| Data | *Issue* | Decisió o dubte | Com s'ha resolt | Referència |
+| --- | --- | --- | --- | --- |
+| 2026-11-26 | RA2-ISSUE-05 | Com fem que un producte sense estoc quedi com a no disponible? | Actualitzem `available` a la mateixa sentència amb el valor `newStock > 0` | [52eecf5](https://github.com/ThiagoBemen3/ComputerCenterShopv1_javafx/commit/52eecf58e3d5b53aa555a080b000fe6f7cf6e7aa) |
+
+## Ús responsable d'IA
+
+No hem fet us d'IA en aquesta issue
 
 ## Proves que hem de poder repetir
 
