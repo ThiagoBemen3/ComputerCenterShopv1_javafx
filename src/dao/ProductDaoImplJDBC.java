@@ -96,8 +96,13 @@ public class ProductDaoImplJDBC implements ProductDao {
 
 	@Override
 	public int updateStock(String name, int newStock) throws SQLException {
-		// TODO RA2-ISSUE-05: actualitzar stock i available segons newStock amb PreparedStatement.
-		throw pending("RA2-ISSUE-05 pendent: implementa actualitzacio d'estoc.");
+		String sql = "UPDATE products SET stock = ?, available = ? WHERE name = ?";
+		try (PreparedStatement statement = requireConnection().prepareStatement(sql)) {
+			statement.setInt(1, newStock);
+			statement.setBoolean(2, newStock > 0);
+			statement.setString(3, name);
+			return statement.executeUpdate();
+		}
 	}
 
 	@Override
