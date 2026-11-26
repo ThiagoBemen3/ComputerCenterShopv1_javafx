@@ -49,7 +49,7 @@ Marqueu una tasca quan la prova i el rastre al repositori estiguin recollits. El
 
 - [X] [RA2-ISSUE-04 · Inserció de dades](issues/RA2-ISSUE-04-inserir-producte-preparedstatement.md)
 - [ ] [RA2-ISSUE-05 · Actualització d'estoc](issues/RA2-ISSUE-05-actualitzar-estoc.md)
-- [ ] [RA2-ISSUE-06 · Eliminació controlada](issues/RA2-ISSUE-06-eliminar-producte-controlat.md)
+- [X] [RA2-ISSUE-06 · Eliminació controlada](issues/RA2-ISSUE-06-eliminar-producte-controlat.md)
 - [ ] [RA2-ISSUE-07 · Consultes i resultats](issues/RA2-ISSUE-07-consultar-inventari-resultset.md)
 
 ### M3 · Robustesa JDBC
@@ -178,6 +178,39 @@ No hem utilitzat a aquesta issue.
 ## Ús responsable d'IA
 
 No hem fet us en aquest issue
+
+### RA2-ISSUE-06 · Eliminació controlada
+
+- Estat: **comprovat**
+- Persona que l'ha iniciat: **Thiago**
+- Problema inicial: **el mètode `deleteProduct()` no eliminava cap producte. Llançava l'error «RA2-ISSUE-06 pendent» i no es podia esborrar cap producte de la base de dades.**
+- Decisió aplicada: **fer l'eliminació amb `PreparedStatement` i la sentència `DELETE FROM products WHERE name = ?`, assignant el nom amb `setString` per no concatenar-lo a l'SQL. Retornem el resultat d'`executeUpdate()`: 1 si el producte existia i 0 si no existia, sense llançar error. Si el producte té historial a `inventory_history`, la clau forana no deixa esborrar-lo (error 23503); en aquest cas capturem l'error i llancem un missatge que explica per què no es pot eliminar, i el producte no s'esborra.**
+- Canvis fets: **`src/dao/ProductDaoImplJDBC.java`, mètode `deleteProduct()`: hem tret el TODO i el `throw pending(...)` i hem afegit l'eliminació parametritzada amb el control de l'error de clau forana.**
+- Prova realitzada: **des de la finestra de l'aplicació hem escrit «SSD 1TB» al camp del nom i l'hem eliminat; l'aplicació mostra «Files eliminades: 1». Després, amb l'aplicació tancada, hem fet `SELECT * FROM products` a la consola d'H2 i «SSD 1TB» ja no hi és: queden «RAM 32GB», «Teclat mecanic» i «GTA VI» (3 files).**
+- Evidència: **[captura de l'aplicació](evidencies/issue06_app.png)** · **[captura de la consulta](evidencies/issue06.png)**
+- *Commit* o *pull request*: **[260b10d](https://github.com/ThiagoBemen3/ComputerCenterShopv1_javafx/commit/260b10d3de462c430706158e3dfd9beaa9cd924a)**
+- Explicació individual: **[Alex: ...] [Thiago: ...]**
+- Ús d'IA, si n'hi ha hagut: **[completeu]**
+
+## Proves que hem de poder repetir
+
+| Cas que comprovem | Dades o condicions inicials | Resultat observat | Evidència |
+| --- | --- | --- | --- |
+| Arrencada del projecte | Executar `Ra2JdbcDemo` amb la configuració per defecte | La connexió s'obre i es creen les taules. El programa s'atura a «RA2-ISSUE-07 pendent» | **[enllaç]** |
+| Operació de modificació | Inserció (RA2-ISSUE-04): afegir «GTA VI» des de l'aplicació. Eliminació (RA2-ISSUE-06): eliminar «SSD 1TB» des de l'aplicació. Actualització pendent (RA2-ISSUE-05) | «GTA VI» apareix a la consulta posterior. L'eliminació mostra «Files eliminades: 1» i «SSD 1TB» ja no surt a la consulta posterior | **[captura 04](evidencies/issue04.png)** · **[captura 06 app](evidencies/issue06_app.png)** · **[captura 06 consulta](evidencies/issue06.png)** |
+| Consulta de dades | Pendent (RA2-ISSUE-07) | Pendent | Pendent |
+| Cas d'error controlat | Base de dades ja creada. Executar amb `-Dcomputercenter.db.password=dolenta` | «Wrong user name or password [28000-224]». El programa mostra l'error i acaba sense excepció | **[enllaç]** |
+| Operació agrupada o transacció | Pendent (RA2-ISSUE-09) | Pendent | Pendent |
+
+## Decisions i dubtes de l'equip
+
+| Data | *Issue* | Decisió o dubte | Com s'ha resolt | Referència |
+| --- | --- | --- | --- | --- |
+| 2026-11-26 | RA2-ISSUE-06 | Què passa si eliminem un producte que té historial a `inventory_history`? | La clau forana no ho permet (error 23503). Capturem aquest error i llancem un missatge que explica per què no es pot eliminar; el producte no s'esborra | [260b10d](https://github.com/ThiagoBemen3/ComputerCenterShopv1_javafx/commit/260b10d3de462c430706158e3dfd9beaa9cd924a) |
+
+## Ús responsable d'IA
+
+Hem utilitzat ia per la aplicacio de preparedStatement
 
 ## Proves que hem de poder repetir
 
