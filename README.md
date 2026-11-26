@@ -47,7 +47,7 @@ Marqueu una tasca quan la prova i el rastre al repositori estiguin recollits. El
 
 ### M2 · Operacions relacionals principals
 
-- [ ] [RA2-ISSUE-04 · Inserció de dades](issues/RA2-ISSUE-04-inserir-producte-preparedstatement.md)
+- [X] [RA2-ISSUE-04 · Inserció de dades](issues/RA2-ISSUE-04-inserir-producte-preparedstatement.md)
 - [ ] [RA2-ISSUE-05 · Actualització d'estoc](issues/RA2-ISSUE-05-actualitzar-estoc.md)
 - [ ] [RA2-ISSUE-06 · Eliminació controlada](issues/RA2-ISSUE-06-eliminar-producte-controlat.md)
 - [ ] [RA2-ISSUE-07 · Consultes i resultats](issues/RA2-ISSUE-07-consultar-inventari-resultset.md)
@@ -145,6 +145,39 @@ No hem utilitzat en aquesta issue.
 ## Ús responsable d'IA
 
 No hem utilitzat a aquesta issue.
+
+### RA2-ISSUE-04 · Inserció de dades
+
+- Estat: **comprovat**
+- Persona que l'ha iniciat: **Thiago**
+- Problema inicial: **el mètode `insertProduct()` no inseria cap producte. Llançava l'error «RA2-ISSUE-04 pendent» i no es podia afegir cap producte nou a la base de dades.**
+- Decisió aplicada: **fer la inserció amb `PreparedStatement` i la sentència `INSERT INTO products(name, wholesaler_price, available, stock) VALUES (?, ?, ?, ?)`. Assignem cada valor amb `setString`, `setDouble`, `setBoolean` i `setInt`, així no concatenem cap valor de l'usuari dins l'SQL. Fem servir `try-with-resources` perquè el `PreparedStatement` es tanqui sol, i retornem el resultat d'`executeUpdate()`, que són les files afectades.**
+- Canvis fets: **`src/dao/ProductDaoImplJDBC.java`, mètode `insertProduct()`: hem tret el TODO i el `throw pending(...)`, hem afegit la inserció parametritzada i l'import de `java.sql.PreparedStatement`.**
+- Prova realitzada: **des de la finestra de l'aplicació hem afegit «GTA VI» (preu 67.00, estoc 6). Després, amb l'aplicació tancada, hem fet `SELECT * FROM products` a la consola d'H2 i surten els tres productes inicials i «GTA VI» (4 files). `Ra2JdbcDemo` continua aturant-se a «RA2-ISSUE-07 pendent», perquè comença llistant l'inventari.**
+- Evidència: **[captura](evidencies/issue04.png)**
+- *Commit* o *pull request*: **[2d94ca4](https://github.com/ThiagoBemen3/ComputerCenterShopv1_javafx/commit/2d94ca49f92eceb7de36e5cf8d64b46ea1599d65)**
+- Explicació individual: **[Alex: ...] [Thiago: ...]**
+- Ús d'IA, si n'hi ha hagut: **[completeu]**
+
+## Proves que hem de poder repetir
+
+| Cas que comprovem | Dades o condicions inicials | Resultat observat | Evidència |
+| --- | --- | --- | --- |
+| Arrencada del projecte | Executar `Ra2JdbcDemo` amb la configuració per defecte | La connexió s'obre i es creen les taules. El programa s'atura a «RA2-ISSUE-07 pendent» | **[enllaç]** |
+| Operació de modificació | Inserció (RA2-ISSUE-04): afegir «GTA VI» (67.00, estoc 6) des de l'aplicació. Actualització i eliminació pendents (RA2-ISSUE-05 i 06) | El producte es desa i apareix en una consulta posterior amb `SELECT * FROM products` | **[captura](evidencies/issue04.png)** |
+| Consulta de dades | Pendent (RA2-ISSUE-07) | Pendent | Pendent |
+| Cas d'error controlat | Base de dades ja creada. Executar amb `-Dcomputercenter.db.password=dolenta` | «Wrong user name or password [28000-224]». El programa mostra l'error i acaba sense excepció | **[enllaç]** |
+| Operació agrupada o transacció | Pendent (RA2-ISSUE-09) | Pendent | Pendent |
+
+## Decisions i dubtes de l'equip
+
+| Data | *Issue* | Decisió o dubte | Com s'ha resolt | Referència |
+| --- | --- | --- | --- | --- |
+| 2026-11-26 | RA2-ISSUE-04 | Com evitem que un nom amb cometes o un valor de l'usuari trenqui la sentència o permeti injecció SQL? | Fem servir `PreparedStatement` amb `?` i assignem els valors amb `setString`, `setDouble`, `setBoolean` i `setInt` en lloc de concatenar-los | [2d94ca4](https://github.com/ThiagoBemen3/ComputerCenterShopv1_javafx/commit/2d94ca49f92eceb7de36e5cf8d64b46ea1599d65) |
+
+## Ús responsable d'IA
+
+No hem fet us en aquest issue
 
 ## Proves que hem de poder repetir
 
